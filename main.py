@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright
-import regexConstants as rc
+import autoTag.regexConstants as rc
 
 def login(page_, username, password):
     page_.fill('input[name="login"]', username)
