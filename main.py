@@ -56,11 +56,10 @@ def parse_a_ticket():
         texts += quoteHandle.inner_text() + '\n'
     
     print(texts)
-    # Check if the affliation tag is chosen, if yes, which one is chosen
-    
     # Check if the support tag is chosen, if yes, which ones are chosen
 
-
+    # decide which tag to choose
+    # 
 
 
 
