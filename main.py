@@ -1,4 +1,5 @@
 from playwright.sync_api import sync_playwright
+import regexConstants as rc
 
 def login(page_, username, password):
     page_.fill('input[name="login"]', username)
@@ -26,6 +27,9 @@ def parse_a_ticket():
     # Get the affliation of the requestor
     primaryAffiliationHandle = page.query_selector('.CustomField__Primary_Affiliation_ > .value')
     print(primaryAffiliationHandle.inner_text())
+    # Get the email address of the requestor
+    emailHandle = page.query_selector('.EmailAddress > .value')
+    print(emailHandle.inner_text())
     # Get the title of the ticket
     titleHandle = page.query_selector('h1')
     print(titleHandle.inner_text()[9:])
@@ -35,12 +39,25 @@ def parse_a_ticket():
     quoteHandles = page.query_selector_all('.message-stanza.closed')
     texts = ''
     for messageHandle in messageHandles:
-        texts += messageHandle.inner_text()
+        # filter out the empty stirngs
+        if messageHandle.inner_text() == '':
+            continue
+        # filter out the CUS auto-reply
+        if rc.autoReply in messageHandle.inner_text():
+            continue
+        texts += messageHandle.inner_text() + '\n'
     for quoteHandle in quoteHandles:
-        texts += quoteHandle.inner_text()
+        # filter out the empty stirngs
+        if quoteHandle.inner_text() != '':
+            continue
+        # filter out the CUS auto-reply
+        if rc.autoReply in quoteHandle.inner_text():
+            continue
+        texts += quoteHandle.inner_text() + '\n'
+    
     print(texts)
     # Check if the affliation tag is chosen, if yes, which one is chosen
-
+    
     # Check if the support tag is chosen, if yes, which ones are chosen
 
 
