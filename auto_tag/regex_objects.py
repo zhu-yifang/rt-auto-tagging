@@ -27,7 +27,7 @@ re.compile('google form', re.I), re.compile('google sheets', re.I), re.compile('
 # google group
 # content
 google_group_content = [re.compile('google group', re.I), re.compile('group request', re.I),
-re.compile('external users to that group', re.I)]
+re.compile('external users to that group', re.I), re.compile(r'@groups.reed.edu', re.I)]
 # subject
 google_group_subject = [re.compile('google group', re.I), re.compile('group request', re.I)]
 # email
@@ -144,7 +144,8 @@ re.compile('install', re.I), re.compile('uninstall', re.I), re.compile('license'
 re.compile('zotero', re.I), re.compile('latex', re.I), re.compile('mathematica', re.I), re.compile('GIS'), 
 re.compile('stata', re.I), re.compile('SensusAccess', re.I), re.compile('vmware', re.I), 
 re.compile('matlab', re.I), re.compile('Code42', re.I), re.compile('adobe', re.I), re.compile('1password', 
-re.I), re.compile('rstudio', re.I), re.compile('\bOS update'), re.compile('JMP'), re.compile('Mnova')]
+re.I), re.compile('rstudio', re.I), re.compile('\bOS update'), re.compile('JMP'), re.compile('Mnova'), 
+re.compile('Chrome', re.I), re.compile('Firefox', re.I), re.compile('Safari', re.I), re.compile('Edge', re.I)]
 # subject
 software_subject = [re.compile('\bOS upgrade', re.I), re.compile('operating system', re.I), 
 re.compile('Monterey'), re.compile('Big Sur', re.I), re.compile('Catalina'), re.compile('Mojave'),
@@ -153,7 +154,8 @@ re.compile('install', re.I), re.compile('uninstall', re.I), re.compile('license'
 re.compile('zotero', re.I), re.compile('latex', re.I), re.compile('mathematica', re.I), re.compile('GIS'), 
 re.compile('stata', re.I), re.compile('SensusAccess', re.I), re.compile('vmware', re.I), 
 re.compile('matlab', re.I), re.compile('Code42', re.I), re.compile('adobe', re.I), re.compile('1password', 
-re.I), re.compile('rstudio', re.I), re.compile('\bOS update'), re.compile('JMP'), re.compile('Mnova')]
+re.I), re.compile('rstudio', re.I), re.compile('\bOS update'), re.compile('JMP'), re.compile('Mnova'),
+re.compile('Chrome', re.I), re.compile('Firefox', re.I), re.compile('Safari', re.I), re.compile('Edge', re.I)]
 # email
 
 # thesis format

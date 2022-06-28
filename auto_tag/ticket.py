@@ -12,24 +12,12 @@ class Ticket:
         self.subject = ''
         self.email = ''
         self.contents = ''
-        self.tags = {'mass email': False,
-                     'thesis': False,
-                     'two-factor': False,
-                     'user/name change': False,
-                     'no tag': False,
-                     'phish report/fwd': False,
-                     'google drive': False,
-                     'google group': False,
-                     'library related': False,
-                     'virus/malware': False,
-                     'password reset': False,
-                     'printers/copiers': False,
-                     'hardware': False,
-                     'microsoft': False,
-                     'network': False,
-                     'reed accounts & access': False,
-                     'software': False}
+        self.tags = set()
+        self.auto_tag = set()
     
+    def __str__(self):
+        return f'{self.id}: {self.subject}, {self.email}, {self.tags}, {self.auto_tag}'
+
     # get the ticket's subject, email, contents
     def get_info(self, page):
         page.goto(f'https://help.reed.edu/Ticket/Display.html?id={self.id}')
@@ -44,7 +32,7 @@ class Ticket:
         # Get the tags of the ticket
         tag_handles = page.query_selector_all('#CF-354-ShowRow > .value')
         for tag_handle in tag_handles:
-            self.tags[tag_handle.inner_text()] = True
+            self.tags.add(tag_handle.inner_text())
 
         # Get all the messages and quotes of the ticket
         page.wait_for_load_state('networkidle')
@@ -71,7 +59,6 @@ class Ticket:
     
     # decide which tag to choose
     def parse(self):
-        pass
         # mass email
         if self.is_mass_email():
             return
@@ -133,202 +120,216 @@ class Ticket:
     def is_mass_email(self):
         for rule in reobj.mass_email_subject:
             if rule.search(self.subject):
-                self.tag['mass email'] = True
+                self.auto_tag.add('mass email')
                 return True
-
+        return False
+    
     def is_thesis(self):
         for rule in reobj.thesis_subject:
             if rule.search(self.subject):
-                self.tag['thesis'] = True
+                self.auto_tag.add('thesis')
                 return True
         for rule in reobj.thesis_content:
             if rule.search(self.email):
-                self.tag['thesis'] = True
+                self.auto_tag.add('thesis')
                 return True
-    
+        return False
+
     def is_two_factor(self):
         for rule in reobj.two_factor_subject:
             if rule.search(self.subject):
-                self.tag['two-factor'] = True
+                self.auto_tag.add('two-factor')
                 return True
         for rule in reobj.two_factor_content:
             if rule.search(self.email):
-                self.tag['two-factor'] = True
+                self.auto_tag.add('two-factor')
                 return True
+        return False
 
     def is_name_change(self):
         for rule in reobj.name_change_subject:
             if rule.search(self.subject):
-                self.tag['name change'] = True
+                self.auto_tag.add('user/name change')
                 return True
         for rule in reobj.name_change_content:
             if rule.search(self.email):
-                self.tag['name_change'] = True
+                self.auto_tag.add('user/name change')
                 return True
+        return False
 
     def is_no_tag(self):
         for rule in reobj.no_tag_subject:
             if rule.search(self.subject):
-                self.tag['no_tag'] = True
+                self.auto_tag.add('no tag')
                 return True
         for rule in reobj.no_tag_email:
             if rule.search(self.email):
-                self.tag['no_tag'] = True
+                self.auto_tag.add('no tag')
                 return True
-    
+        return False
+
     def is_phish(self):
         for rule in reobj.phish_subject:
             if rule.search(self.subject):
-                self.tag['phish'] = True
+                self.auto_tag.add('phish report/fwd')
                 return True
         for rule in reobj.phish_email:
             if rule.search(self.email):
-                self.tag['phish'] = True
+                self.auto_tag.add('phish report/fwd')
                 return True
         for rule in reobj.phish_content:
             if rule.search(self.email):
-                self.tag['phish'] = True
+                self.auto_tag.add('phish report/fwd')
                 return True
-
+        return False
 
     def is_google_drive(self):
         for rule in reobj.google_drive_subject:
             if rule.search(self.subject):
-                self.tag['google_drive'] = True
+                self.auto_tag.add('google drive')
                 return True
         for rule in reobj.google_drive_content:
             if rule.search(self.email):
-                self.tag['google_drive'] = True
+                self.auto_tag.add('google drive')
                 return True
-        
+        return False
+
     def is_google_group(self):
         for rule in reobj.google_group_subject:
             if rule.search(self.subject):
-                self.tag['google_group'] = True
+                self.auto_tag.add('google group')
                 return True
         for rule in reobj.google_group_content:
-            if rule.search(self.email):
-                self.tag['google_group'] = True
+            if rule.search(self.contents):
+                self.auto_tag.add('google group')
                 return True
 
     def is_library(self):
         for rule in reobj.library_subject:
             if rule.search(self.subject):
-                self.tag['library'] = True
+                self.auto_tag.add('library related')
                 return True
         for rule in reobj.library_email:
             if rule.search(self.email):
-                self.tag['library'] = True
+                self.auto_tag.add('library related')
                 return True
         for rule in reobj.library_content:
             if rule.search(self.email):
-                self.tag['library'] = True
+                self.auto_tag.add('library related')
                 return True
+        return False
 
     def is_virus(self):
         for rule in reobj.virus_subject:
             if rule.search(self.subject):
-                self.tag['virus'] = True
+                self.auto_tag.add('virus/malware')
                 return True
         for rule in reobj.virus_email:
             if rule.search(self.email):
-                self.tag['virus'] = True
+                self.auto_tag.add('virus/malware')
                 return True
         for rule in reobj.virus_content:
             if rule.search(self.email):
-                self.tag['virus'] = True
+                self.auto_tag.add('virus/malware')
                 return True
+        return False
 
     def is_password_reset(self):
         for rule in reobj.password_reset_subject:
             if rule.search(self.subject):
-                self.tag['password_reset'] = True
+                self.auto_tag.add('password reset')
                 return True
         for rule in reobj.password_reset_email:
             if rule.search(self.email):
-                self.tag['password_reset'] = True
+                self.auto_tag.add('password reset')
                 return True
         for rule in reobj.password_reset_content:
             if rule.search(self.email):
-                self.tag['password_reset'] = True
+                self.auto_tag.add('password reset')
                 return True
+        return False
 
     def is_printing(self):
         for rule in reobj.printing_subject:
             if rule.search(self.subject):
-                self.tag['printing'] = True
+                self.auto_tag.add('printers/copiers')
                 return True
         for rule in reobj.printing_content:
             if rule.search(self.email):
-                self.tag['printing'] = True
+                self.auto_tag.add('printers/copiers')
                 return True
- 
+        return False
+
     def is_hardware(self):
         for rule in reobj.hardware_subject:
             if rule.search(self.subject):
-                self.tag['hardware'] = True
+                self.auto_tag.add('hardware')
                 return True
         for rule in reobj.hardware_content:
             if rule.search(self.email):
-                self.tag['hardware'] = True
+                self.auto_tag.add('hardware')
                 return True
-
+        return False
+    
     def is_microsoft(self):
         for rule in reobj.microsoft_subject:
             if rule.search(self.subject):
-                self.tag['microsoft'] = True
+                self.auto_tag.add('microsoft')
                 return True
         for rule in reobj.microsoft_email:
             if rule.search(self.email):
-                self.tag['microsoft'] = True
+                self.auto_tag.add('microsoft')
                 return True
         for rule in reobj.microsoft_content:
             if rule.search(self.email):
-                self.tag['microsoft'] = True
+                self.auto_tag.add('microsoft')
                 return True
+        return False
 
     def is_network(self):
         for rule in reobj.network_subject:
             if rule.search(self.subject):
-                self.tag['network'] = True
+                self.auto_tag.add('network')
                 return True
         for rule in reobj.network_content:
             if rule.search(self.email):
-                self.tag['network'] = True
+                self.auto_tag.add('network')
                 return True
+        return False
 
     def is_reed_account(self):
         for rule in reobj.account_subject:
             if rule.search(self.subject):
-                self.tag['reed_account'] = True
+                self.auto_tag.add('reed accounts & access')
                 return True
         for rule in reobj.account_content:
             if rule.search(self.email):
-                self.tag['reed_account'] = True
+                self.auto_tag.add('reed accounts & access')
                 return True
         for rule in reobj.account_email:
             if rule.search(self.email):
-                self.tag['reed_account'] = True
+                self.auto_tag.add('reed accounts & access')
                 return True
+        return False
+
     def is_software(self):
         for rule in reobj.software_subject:
             if rule.search(self.subject):
-                self.tag['software'] = True
+                self.auto_tag.add('software')
                 return True
         for rule in reobj.software_content:
             if rule.search(self.email):
-                self.tag['software'] = True
+                self.auto_tag.add('software')
                 return True
-    
+        return False
+
 if __name__ == '__main__':
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         page = browser.new_page()
         # Log In.
         ops.login(page, 'zhuyifang', '***REMOVED***')
-        ticket = Ticket(id='336601')
+        ticket = Ticket(id='324298')
         ticket.get_info(page)
-        for tag in ticket.tags:
-            if ticket.tags[tag]:
-                print(tag)
+        ticket.parse()
         

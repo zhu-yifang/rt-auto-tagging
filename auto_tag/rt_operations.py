@@ -4,6 +4,7 @@ def login(page, username, password):
     page.fill('input[name="password"]', password)
     page.click('body > div > div.panel.panel-default > div.panel-body > form > button')
 
+# Get all unsolved tickets in the twatch queue and the cus queue
 # Returns a list of tickets ids
 def get_all_tickets(page):
     # Get the unresolved twatch tickets
