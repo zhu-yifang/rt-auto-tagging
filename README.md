@@ -5,8 +5,8 @@ A python script auto tags RT using Playwright
 1. Auto log in. (Done)
 2. Get all unsolved tickets in the T-watch queue and CUS queue. (Done)
 3. Parse tickets.
-    a. Get all the content of the ticket. (Done)
-    b. Parse it with regular expression and keywords mathcing. (Doing)
+   a. Get all the content of the ticket. (Done)
+   b. Parse it with regular expression and keywords mathcing. (Doing)
 4. ~~Tag affliations~~, since RT has auto tagging for affliation, I will not worry about it.
 5. Tag support tags with some single tickts.
 6. Test it with some human tagged tickets.
