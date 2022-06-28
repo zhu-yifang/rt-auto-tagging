@@ -1,5 +1,7 @@
 import re
-
+'''
+模块的说明文档放在这里
+'''
 # filter out the CUS auto-reply
 # content
 auto_reply = [re.compile('We have received your email with the subject')]
@@ -197,5 +199,3 @@ no_tag_subject = [re.compile('Welcome to Reed College'),
 re.compile('Notes for your first day of work')]
 # email
 no_tag_email = [re.compile('etrieve@reed.edu'), re.compile('schrodinger.com')]
-
-
