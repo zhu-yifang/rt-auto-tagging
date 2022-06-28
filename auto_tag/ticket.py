@@ -57,66 +57,72 @@ class Ticket:
                 continue
             self.contents += quote + '\n'
     
+    def check_match(self):
+        if self.tags == self.auto_tag:
+            return True
+        else:
+            return False
+
     # decide which tag to choose
     def parse(self):
         # mass email
         if self.is_mass_email():
-            return
+            return True
         # thesis format
         elif self.is_microsoft():
             if self.is_thesis():
-                return
+                return True
             elif self.is_password_reset():
-                return
+                return True
         # two factor
         elif self.is_two_factor():
-            return
+            return True
         # name change
         elif self.is_name_change():
-            return
+            return True
         # no tag
         elif self.is_no_tag():
-            return
+            return True
         # phish
         elif self.is_phish():
-            return
+            return True
         # google drive
         elif self.is_google_drive():
-            return
+            return True
         # google group
         elif self.is_google_group():
-            return
+            return True
         # library
         elif self.is_library():
-            return
+            return True
         # virus
         elif self.is_virus():
-            return
+            return True
         # password reset
         elif self.is_password_reset():
-            return
+            return True
         # printing
         elif self.is_printing():
-            return
+            return True
         # hardware
         elif self.is_hardware():
-            return
+            return True
         # microsoft
         elif self.is_microsoft():
-            return
+            return True
         # network
         elif self.is_network():
-            return
+            return True
         # reed account
         elif self.is_reed_account():
-            return
+            return True
         # software
         elif self.is_software():
-            return
+            return True
         # else
         else:
             print(f'{self.id} needs to be tagged manually')
-            
+    
     def is_mass_email(self):
         for rule in reobj.mass_email_subject:
             if rule.search(self.subject):
@@ -329,6 +335,7 @@ if __name__ == '__main__':
         page = browser.new_page()
         # Log In.
         ops.login(page, 'zhuyifang', '***REMOVED***')
+        
         ticket = Ticket(id='324298')
         ticket.get_info(page)
         ticket.parse()

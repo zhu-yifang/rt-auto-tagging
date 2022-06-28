@@ -6,7 +6,7 @@ def login(page, username, password):
 
 # Get all unsolved tickets in the twatch queue and the cus queue
 # Returns a list of tickets ids
-def get_all_tickets(page):
+def get_unsolved_tickets(page):
     # Get the unresolved twatch tickets
     twatch_handle = page.query_selector('#TitleBox--_Dashboards_dhandler------VW5yZXNvbHZlZCBUd2F0Y2ggVGlja2V0cw__---0')
     twatch_tickets = twatch_handle.query_selector_all('tbody.list-item')
@@ -20,3 +20,6 @@ def get_all_tickets(page):
     for ticket in cus_tickets:
         cus_ids.append(ticket.get_attribute('data-record-id'))
     return twatch_ids + cus_ids
+
+def get_tickets(page):
+    
