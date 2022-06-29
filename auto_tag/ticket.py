@@ -30,9 +30,13 @@ class Ticket:
         self.subject = subject_handle.inner_text()[9:]
 
         # Get the tags of the ticket
-        tag_handles = page.query_selector_all('#CF-354-ShowRow > .value')
-        for tag_handle in tag_handles:
-            self.tags.add(tag_handle.inner_text())
+        tag_handles = page.query_selector('#CF-354-ShowRow > .value')
+        if tag_handles:
+            tags = tag_handles.inner_text().split('\n')
+        else:
+            tags = []
+        for tag in tags:
+            self.tags.add(tag)
 
         # Get all the messages and quotes of the ticket
         page.wait_for_load_state('networkidle')
@@ -166,11 +170,11 @@ class Ticket:
     def is_no_tag(self):
         for rule in reobj.no_tag_subject:
             if rule.search(self.subject):
-                self.auto_tag.add('no tag')
+                # self.auto_tag.add('no tag')
                 return True
         for rule in reobj.no_tag_email:
             if rule.search(self.email):
-                self.auto_tag.add('no tag')
+                # self.auto_tag.add('no tag')
                 return True
         return False
 
@@ -335,8 +339,17 @@ if __name__ == '__main__':
         page = browser.new_page()
         # Log In.
         ops.login(page, 'zhuyifang', '***REMOVED***')
-        
-        ticket = Ticket(id='324298')
-        ticket.get_info(page)
-        ticket.parse()
+
+        ticket = Ticket(337777)
+        ids = ops.get_tickets(page)
+        count = 0
+        for id in ids:
+            ticket = Ticket(id)
+            #print(ticket.id)
+            ticket.get_info(page)
+            ticket.parse()
+            if not ticket.check_match():
+                count += 1
+                print(f"{ticket.id} doesn't mathch, {ticket.tags}, {ticket.auto_tag}")
+        print(f'{count} over {len(ids)} tickets don\'t match')
         
