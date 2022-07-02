@@ -9,7 +9,9 @@ A python script auto tags RT using Playwright
    2. Parse it with regular expression and keywords mathcing. (Done)
 4. ~~Tag affliations~~, since RT has auto tagging for affliation, I will not worry about it. (Skip)
 5. Test it with some human tagged tickets. (Doing)
-6. Using it!
+6. Optimize it with asyncio
+7. Using logging to make logs
+8. Use it!
 
 # Logic of tagging
 Based on the hardness of tagging

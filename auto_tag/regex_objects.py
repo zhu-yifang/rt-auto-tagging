@@ -15,6 +15,9 @@ auto_reply = [re.compile('We have received your email with the subject')]
 # hardware = microsoft = network
 # software = reed account
 
+# a regular expression searches email address
+email_re = re.compile(r'[\w\.-]+@[\w\.-]+')
+
 # google drive
 # content
 google_drive_content = [re.compile('google drive', re.I), re.compile('drive request', re.I),
@@ -34,14 +37,15 @@ google_group_subject = [re.compile('google group', re.I), re.compile('group requ
 
 # hardware
 # content
-hardware_content = [re.compile('chs', re.I), re.compile('iMac', re.I), re.compile('hardware shop', re.I),
+hardware_content = [re.compile('chs', re.I), re.compile('hardware shop', re.I),
 re.compile('macbook pro replacement', re.I), re.compile('keyboard', re.I), re.compile('monitor', re.I),
-re.compile('battery', re.I), re.compile('mouse', re.I)]
+re.compile('battery', re.I), re.compile('mouse', re.I), re.compile('loaner laptop', re.I), 
+re.compile('chromebook', re.I)]
 # subject
 hardware_subject = [re.compile('CUS Computer Maintenance Required'), re.compile('Tracking Down', re.I), 
-re.compile('chs', re.I), re.compile('iMac', re.I), re.compile('hardware shop', re.I),
-re.compile('macbook pro replacement', re.I), re.compile('keyboard', re.I), re.compile('monitor', re.I),
-re.compile('battery', re.I), re.compile('mouse', re.I)]
+re.compile('chs', re.I), re.compile('hardware shop', re.I), re.compile('macbook pro replacement', re.I), 
+re.compile('keyboard', re.I), re.compile('monitor', re.I), re.compile('battery', re.I), re.compile('mouse', re.I), 
+re.compile('loaner laptop', re.I), re.compile('chromebook', re.I)]
 # email
 
 # library related
@@ -65,8 +69,7 @@ mass_email_subject = [re.compile('Message Pending')]
 # microsoft: note, thesis template is not microsoft tag
 # content
 microsoft_content = [re.compile('microsoft', re.I), re.compile('power\s?point', re.I),
-re.compile('Word'), re.compile('Excel'), re.compile('\.doc'), re.compile('\.docx'),
-re.compile('\bppt\b'), re.compile('\bpptx\b')]
+re.compile('Word'), re.compile('Excel'), re.compile('\bppt\b'), re.compile('\bpptx\b')]
 # subject
 microsoft_subject = [re.compile('microsoft', re.I), re.compile('power\s?point', re.I),
 re.compile('Word'), re.compile('Excel')]
@@ -88,7 +91,6 @@ re.compile('wifi', re.I), re.compile('ethernet', re.I), re.compile('connection i
 re.compile('reed1x', re.I), re.compile('xenia'), re.compile('fluke', re.I), re.compile('mac address', re.I), 
 re.compile('ip address', re.I), re.compile('switch', re.I), re.compile('firewall', re.I),
 re.compile('dns', re.I)]
-
 # email
 
 # password reset
@@ -127,11 +129,14 @@ printint_email = [re.compile('xerox', re.I), re.compile('ctx', re.I)]
 # reed accounts & access
 # content
 account_content = [re.compile('Please follow the steps below to setup your Reed account'), 
-re.compile('new (?:employee|student|faculty)', re.I), re.compile('vpn', re.I), re.compile('dlist', re.I),
-re.compile('reed account', re.I), re.compile('kerberos', re.I)]
+re.compile('new (?:employee|student|faculty)', re.I), re.compile('vpn', re.I), 
+re.compile('dlist|(?:distribution list)', re.I), re.compile('reed account', re.I), 
+re.compile('kerberos', re.I), re.compile('iris', re.I), 
+re.compile('delegated account', re.I), re.compile('computing account', re.I)]
 # subject
-account_subject = [re.compile('Reed computing account'), re.compile('Account Closure for Graduates'),
-re.compile('Account Tool'), re.compile('Computing at Reed')]
+account_subject = [re.compile('computing account', re.I), re.compile('Account Closure for Graduates'),
+re.compile('Account Tool'), re.compile('Computing at Reed'), 
+re.compile('iris', re.I), re.compile('delegated account')]
 # email
 account_email = [re.compile('email-alias-request@reed.edu')]
 
@@ -145,7 +150,9 @@ re.compile('zotero', re.I), re.compile('latex', re.I), re.compile('mathematica',
 re.compile('stata', re.I), re.compile('SensusAccess', re.I), re.compile('vmware', re.I), 
 re.compile('matlab', re.I), re.compile('Code42', re.I), re.compile('adobe', re.I), re.compile('1password', 
 re.I), re.compile('rstudio', re.I), re.compile('\bOS update'), re.compile('JMP'), re.compile('Mnova'), 
-re.compile('Chrome', re.I), re.compile('Firefox', re.I), re.compile('Safari', re.I), re.compile('Edge', re.I)]
+re.compile('Chrome', re.I), re.compile('Firefox', re.I), re.compile('Safari', re.I), re.compile('Edge', re.I),
+re.compile('\bapp(s)?\b', re.I), re.compile('self service', re.I), 
+re.compile('google calendar', re.I), re.compile('Gmail')]
 # subject
 software_subject = [re.compile('\bOS upgrade', re.I), re.compile('operating system', re.I), 
 re.compile('Monterey'), re.compile('Big Sur', re.I), re.compile('Catalina'), re.compile('Mojave'),
@@ -155,7 +162,9 @@ re.compile('zotero', re.I), re.compile('latex', re.I), re.compile('mathematica',
 re.compile('stata', re.I), re.compile('SensusAccess', re.I), re.compile('vmware', re.I), 
 re.compile('matlab', re.I), re.compile('Code42', re.I), re.compile('adobe', re.I), re.compile('1password', 
 re.I), re.compile('rstudio', re.I), re.compile('\bOS update'), re.compile('JMP'), re.compile('Mnova'),
-re.compile('Chrome', re.I), re.compile('Firefox', re.I), re.compile('Safari', re.I), re.compile('Edge', re.I)]
+re.compile('Chrome', re.I), re.compile('Firefox', re.I), re.compile('Safari', re.I), re.compile('Edge', re.I),
+re.compile('\bapp(s)?\b', re.I), re.compile('self service', re.I), 
+re.compile('google calendar', re.I), re.compile('Gmail')]
 # email
 
 # thesis format
@@ -187,10 +196,10 @@ re.compile('username change', re.I)]
 # virus/malware
 # content
 virus_content = [re.compile('virus', re.I), re.compile('malware', re.I),
-re.compile('trojan', re.I), re.compile('crowdstrike', re.I)]
+re.compile('trojan', re.I), re.compile('crowdstrike', re.I), re.compile('falcon', re.I)]
 # subject
 virus_subject = [re.compile('virus', re.I), re.compile('malware', re.I),
-re.compile('trojan', re.I), re.compile('crowdstrike', re.I)]
+re.compile('trojan', re.I), re.compile('crowdstrike', re.I), re.compile('falcon', re.I)]
 # email
 virus_email = [re.compile('malwarebytes.com'), re.compile('crowdstrike')]
 
@@ -201,3 +210,8 @@ no_tag_subject = [re.compile('Welcome to Reed College'),
 re.compile('Notes for your first day of work')]
 # email
 no_tag_email = [re.compile('etrieve@reed.edu'), re.compile('schrodinger.com')]
+# mass email release receiver email
+mass_email_release = [re.compile('students@reed.edu'), re.compile('staff@reed.edu'), re.compile('faculty@reed.edu'),
+re.compile('reed-community@reed.edu'), re.compile('enrolled@reed.edu'), re.compile('re@groups.reed.edu'),
+re.compile('freshmen@reed.edu'), re.compile('sophomores@reed.edu'), re.compile('juniors@reed.edu'),
+re.compile('seniors@reed.edu'), re.compile('first-years@reed.edu')]
