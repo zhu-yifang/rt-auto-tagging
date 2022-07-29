@@ -1,22 +1,29 @@
-from playwright.sync_api import sync_playwright
-import auto_tag.regex_objects as reobj
-import auto_tag.ticket as ticket
+import asyncio
+from playwright.async_api import async_playwright
 import auto_tag.rt_operations as ops
+from auto_tag.ticket import Ticket
+import time
+
+
+async def main():
+    start = time.time()
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context()
+        page1 = await context.new_page()
+        await ops.login(page1, 'zhuyifang', '***REMOVED***')
+        ids = await ops.get_tickets(page1)
+        tasks = []
+        for id in ids:
+            page = await context.new_page()
+            ticket = Ticket(id, page)
+            task = asyncio.create_task(ticket.scan())
+            tasks.append(task)
+        res = await asyncio.gather(*tasks)
+        print(res)
+    end = time.time()
+    print(f'Time used: {end - start}')
+
 
 if __name__ == '__main__':
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-        page = browser.new_page()
-        # Log In.
-        page.wait_for_load_state('networkidle')
-        # Get all tickets.
-        # ticketIds = get_all_tickets(page)
-        # The format of ticket is https://help.reed.edu/Ticket/Display.html?id=349233
-        # Go to all tickets
-        # for id in ticketIds:
-        #     page.goto(f'https://help.reed.edu/Ticket/Display.html?id={id}')
-        
-        browser.close()
-
-
-    
+    asyncio.run(main())

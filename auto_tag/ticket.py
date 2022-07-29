@@ -1,14 +1,11 @@
-from tracemalloc import start
-from playwright.sync_api import sync_playwright
-import regex_objects as reobj
-import rt_operations as ops
-import time
-
+import auto_tag.regex_objects as reobj
 '''
 模块的说明文档
 '''
 
+
 class Ticket:
+
     def __init__(self, id, page):
         self.id = id
         self.subject = ''
@@ -18,43 +15,46 @@ class Ticket:
         self.page = page
         self.tags = set()
         self.auto_tags = set()
-    
+
     def __str__(self):
         return f'{self.id}: {self.tags}, {self.auto_tags}'
 
-    def goto_ticket(self):
-        self.page.goto(f'https://help.reed.edu/Ticket/Display.html?id={self.id}')
-        self.page.wait_for_load_state(state='networkidle')
+    async def goto_ticket(self):
+        await self.page.goto(
+            f'https://help.reed.edu/Ticket/Display.html?id={self.id}')
+        await self.page.wait_for_load_state(state='networkidle')
 
     # Get the email address of the requestor
-    def get_requestor_email(self):
-        email_handle = self.page.query_selector('.EmailAddress > .value')
-        self.requestor_email = email_handle.inner_text()
+    async def get_requestor_email(self):
+        email_handle = await self.page.query_selector('.EmailAddress > .value')
+        self.requestor_email = await email_handle.inner_text()
         return self.requestor_email
-    
+
     # Get the title of the ticket
-    def get_subject(self):      
-        subject_handle = self.page.query_selector('h1')
-        self.subject = subject_handle.inner_text()[9:]
+    async def get_subject(self):
+        subject_handle = await self.page.query_selector('h1')
+        self.subject = (await subject_handle.inner_text())[9:]
         return self.subject
-    
+
     # Get the tags of the ticket
-    def get_tags(self):
-        tag_handles = self.page.query_selector('#CF-354-ShowRow > .value')
+    async def get_tags(self):
+        tag_handles = await self.page.query_selector('#CF-354-ShowRow > .value'
+                                                     )
         if tag_handles:
-            tags = tag_handles.inner_text().split('\n')
+            tags = (await tag_handles.inner_text()).split('\n')
         else:
             tags = []
         for tag in tags:
             self.tags.add(tag)
         return self.tags
-    
+
     # Get all the messages and quotes of the ticket
-    def get_contents(self):
-        message_handles = self.page.query_selector_all('.messagebody')
-        quote_handles = self.page.query_selector_all('.message-stanza.closed')
+    async def get_contents(self):
+        message_handles = await self.page.query_selector_all('.messagebody')
+        quote_handles = await self.page.query_selector_all(
+            '.message-stanza.closed')
         for message_handle in message_handles:
-            message = message_handle.inner_text()
+            message = await message_handle.inner_text()
             # filter out the empty stirngs
             if message == '':
                 continue
@@ -63,7 +63,7 @@ class Ticket:
                 continue
             self.contents += message + '\n'
         for quote_handle in quote_handles:
-            quote = quote_handle.inner_text()
+            quote = await quote_handle.inner_text()
             # filter out the empty stirngs
             if quote == '':
                 continue
@@ -72,86 +72,97 @@ class Ticket:
                 continue
             self.contents += quote + '\n'
         return self.contents
-    
-    def get_receiver_email(self):
-        handle = self.page.query_selector('td.message-header-key:text-is("To:") + td')
+
+    async def get_receiver_email(self):
+        handle = await self.page.query_selector(
+            'td.message-header-key:text-is("To:") + td')
         if not handle:
             return self.receiver_email
-        if not handle.inner_text():
+        if not await handle.inner_text():
             return self.receiver_email
-        self.receiver_email.add(reobj.email_re.search(handle.inner_text())[0])
+        self.receiver_email.add(
+            reobj.email_re.search(await handle.inner_text())[0])
         return self.receiver_email
 
     # get the ticket's subject, requestor email, receiver email, contents, tags
-    def get_info(self):
-        self.get_subject()
-        self.get_requestor_email()
-        self.get_receiver_email()
-        self.get_contents()
-        self.get_tags()
-    
-    def check_match(self):
-        if self.tags == self.auto_tags:
-            return True
-        else:
-            return False
+    async def get_info(self):
+        await self.goto_ticket()
+        await self.get_subject()
+        await self.get_requestor_email()
+        await self.get_receiver_email()
+        await self.get_contents()
+        await self.get_tags()
 
     # decide which tag to choose
-    def parse(self):
+    async def parse(self):
         # 100%确定的标签
         # mass email
-        if self.is_mass_email():
+        if await self.is_mass_email():
             return self.auto_tags
         # no tag
-        if self.is_no_tag():
+        if await self.is_no_tag():
             return self.auto_tags
         # phish
-        if self.is_phish():
+        if await self.is_phish():
             return self.auto_tags
         # 不是100%确定的标签
         # software
-        self.is_software()
+        await self.is_software()
         # thesis
-        self.is_thesis()
+        await self.is_thesis()
         # two-factor
-        self.is_two_factor()
+        await self.is_two_factor()
         # user/name change
-        self.is_name_change()
+        await self.is_name_change()
         # google drive
-        self.is_google_drive()
+        await self.is_google_drive()
         # google group
-        self.is_google_group()
+        await self.is_google_group()
         # virus/malware
-        self.is_virus()
+        await self.is_virus()
         # password reset
-        self.is_password_reset()
+        await self.is_password_reset()
         # printing
-        self.is_printing()
+        await self.is_printing()
         # hardware
-        self.is_hardware()
+        await self.is_hardware()
         # microsoft
-        self.is_microsoft()
+        await self.is_microsoft()
         # network
-        self.is_network()
+        await self.is_network()
         # reed account
-        self.is_reed_account()
+        await self.is_reed_account()
         # library
-        self.is_library()
+        await self.is_library()
         if 'thesis' and 'microsoft' in self.auto_tags:
             self.auto_tags.remove('microsoft')
         if len(self.auto_tags) >= 3:
             return 'Needs manual tag'
         return self.auto_tags
 
-    def is_mass_email(self):
+    async def close(self):
+        await self.page.close()
+
+    async def scan(self):
+        await self.get_info()
+        await self.parse()
+        await self.close()
+        return await self.check_match()
+
+    async def check_match(self):
+        if self.tags == self.auto_tags:
+            return True
+        else:
+            return False
+
+    async def is_mass_email(self):
         for rule in reobj.mass_email_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('mass email')
                 return True
         return False
 
-    
-    def is_thesis(self):
+    async def is_thesis(self):
         for rule in reobj.thesis_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('thesis')
@@ -162,7 +173,7 @@ class Ticket:
                 return True
         return False
 
-    def is_two_factor(self):
+    async def is_two_factor(self):
         for rule in reobj.two_factor_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('two-factor')
@@ -173,7 +184,7 @@ class Ticket:
                 return True
         return False
 
-    def is_name_change(self):
+    async def is_name_change(self):
         for rule in reobj.name_change_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('user/name change')
@@ -184,7 +195,7 @@ class Ticket:
                 return True
         return False
 
-    def is_no_tag(self):
+    async def is_no_tag(self):
         # notification emails
         for rule in reobj.no_tag_subject:
             if rule.search(self.subject):
@@ -194,7 +205,7 @@ class Ticket:
             if rule.search(self.requestor_email):
                 # self.auto_tags.add('no tag')
                 return True
-         # mass email release
+        # mass email release
         if self.receiver_email:
             email = self.receiver_email.pop()
             for rule in reobj.mass_email_release:
@@ -202,7 +213,7 @@ class Ticket:
                     return True
         return False
 
-    def is_phish(self):
+    async def is_phish(self):
         for rule in reobj.phish_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('phish report/fwd')
@@ -217,7 +228,7 @@ class Ticket:
                 return True
         return False
 
-    def is_google_drive(self):
+    async def is_google_drive(self):
         for rule in reobj.google_drive_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('google drive')
@@ -228,7 +239,7 @@ class Ticket:
                 return True
         return False
 
-    def is_google_group(self):
+    async def is_google_group(self):
         for rule in reobj.google_group_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('google group')
@@ -238,7 +249,7 @@ class Ticket:
                 self.auto_tags.add('google group')
                 return True
 
-    def is_library(self):
+    async def is_library(self):
         for rule in reobj.library_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('library related')
@@ -253,7 +264,7 @@ class Ticket:
                 return True
         return False
 
-    def is_virus(self):
+    async def is_virus(self):
         for rule in reobj.virus_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('virus/malware')
@@ -268,7 +279,7 @@ class Ticket:
                 return True
         return False
 
-    def is_password_reset(self):
+    async def is_password_reset(self):
         for rule in reobj.password_reset_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('password reset')
@@ -283,7 +294,7 @@ class Ticket:
                 return True
         return False
 
-    def is_printing(self):
+    async def is_printing(self):
         for rule in reobj.printing_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('printers/copiers')
@@ -294,7 +305,7 @@ class Ticket:
                 return True
         return False
 
-    def is_hardware(self):
+    async def is_hardware(self):
         for rule in reobj.hardware_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('hardware')
@@ -304,8 +315,8 @@ class Ticket:
                 self.auto_tags.add('hardware')
                 return True
         return False
-    
-    def is_microsoft(self):
+
+    async def is_microsoft(self):
         for rule in reobj.microsoft_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('microsoft')
@@ -320,7 +331,7 @@ class Ticket:
                 return True
         return False
 
-    def is_network(self):
+    async def is_network(self):
         for rule in reobj.network_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('network')
@@ -331,7 +342,7 @@ class Ticket:
                 return True
         return False
 
-    def is_reed_account(self):
+    async def is_reed_account(self):
         for rule in reobj.account_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('reed accounts & access')
@@ -346,7 +357,7 @@ class Ticket:
                 return True
         return False
 
-    def is_software(self):
+    async def is_software(self):
         for rule in reobj.software_subject:
             if rule.search(self.subject):
                 self.auto_tags.add('software')
@@ -357,44 +368,6 @@ class Ticket:
                 return True
         return False
 
-if __name__ == '__main__':
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-        page = browser.new_page()
-        # Log In.
-        ops.login(page, 'zhuyifang', '***REMOVED***')
 
-        start_time = time.time()
-        
-        ticket = Ticket(336618, page)
-        ticket.goto_ticket()
-        ticket.get_info()
-        ticket.parse()
-        print(ticket)
-        
-        
-        
-        
-        
-        
-        
-        # ids = ops.get_tickets(page)
-        # wrong_count = 0
-        # manual_count = 0
-        # for id in ids:
-        #     ticket = Ticket(id, page)
-        #     ticket.goto_ticket()
-        #     ticket.get_info()
-        #     if ticket.parse() == 'Needs manual tag':
-        #         manual_count += 1
-        #         print(f'{ticket.id} needs manual tag, {ticket.tags}, {ticket.auto_tags}')
-        #     elif not ticket.check_match():
-        #         wrong_count += 1
-        #         print(ticket)
-        # end_time = time.time()
-        # # percentage of wrong tags
-        # print(f'{wrong_count / len(ids) * 100}% of tickets have wrong tags')
-        # # percentage of manual tags
-        # print(f'{manual_count / len(ids) * 100}% of tickets need manual tag')
-        # print(f'{end_time - start_time} seconds')
-        
+if __name__ == '__main__':
+    pass
