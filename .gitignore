@@ -1,2 +1,4 @@
 credentials.txt
 *.png
+.vscode
+__pycache__
