@@ -11,7 +11,11 @@ async def main():
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
         page1 = await context.new_page()
-        await ops.login(page1, 'zhuyifang', '***REMOVED***')
+        # read username and password from credentials.txt
+        with open("credentials.txt", "r") as f:
+            username = f.readline().strip()
+            password = f.readline().strip()
+        await ops.login(page1, username, password)
         ids = await ops.get_tickets(page1)
         tasks = []
         for id in ids:
