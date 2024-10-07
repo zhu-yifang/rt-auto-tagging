@@ -13,8 +13,8 @@ async def main():
         page1 = await context.new_page()
         # read username and password from credentials.txt
         with open("credentials.txt", "r") as f:
-            username = f.readline().strip()
-            password = f.readline().strip()
+            username = f.readline(5_000_000).strip()
+            password = f.readline(5_000_000).strip()
         await ops.login(page1, username, password)
         ids = await ops.get_tickets(page1)
         tasks = []
